@@ -51,10 +51,14 @@ class AppContainer extends React.Component {
                                 googleSheetList={this.props.googleSheetList}
                                 recipientsSheetTabs={this.props.recipientsSheetTabs}
                                 recipients={this.props.recipients}
+                                singleMailMode={this.props.singleMailMode}
                                 onRecipientsListChange={this.props.onRecipientsListChange}
                                 onRecipientsSheetsListChange={this.props.onRecipientsSheetsListChange}
                                 recipientsSheetSelected={this.props.recipientsSheetSelected}
                                 recipientsSheetTabSelected={this.props.recipientsSheetTabSelected}
+                                onSingleMailModeChanged={this.props.onSingleMailModeChanged}
+                                onRecipientEmailInput={this.props.onRecipientEmailInput}
+                                onRecipientFullNameInput={this.props.onRecipientFullNameInput}
                             />
                         </section>
                     </div>

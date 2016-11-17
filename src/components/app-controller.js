@@ -19,6 +19,7 @@ class AppController extends React.Component {
                 body: [],
                 subject: null
             },
+            singleMailMode: false,
             templateDocSelected: '',
             templateBookmarkSelected: '',
             recipientsSheetSelected: '',
@@ -33,8 +34,9 @@ class AppController extends React.Component {
         this.onRecipientsSheetsListChange = this.onRecipientsSheetsListChange.bind(this);
         this.onReplacementsSheetsListChange = this.onReplacementsSheetsListChange.bind(this);
 
-        //this.onRecipientEmailInput = this.onRecipientEmailInput.bind(this);
-        //this.onRecipientFullNameInput = this.onRecipientFullNameInput.bind(this);
+        this.onSingleMailModeChanged = this.onSingleMailModeChanged.bind(this);
+        this.onRecipientEmailInput = this.onRecipientEmailInput.bind(this);
+        this.onRecipientFullNameInput = this.onRecipientFullNameInput.bind(this);
 
         this.sendMails = this.sendMails.bind(this);
         this.updateGoogleDocList = this.updateGoogleDocList.bind(this);
@@ -83,7 +85,7 @@ class AppController extends React.Component {
             this.setState({
                 templateBookmarks: [],
                 templateBookmarkSelected: ''
-            });
+            }, this.updateTemplate);
         }
     }
 
@@ -99,7 +101,7 @@ class AppController extends React.Component {
             this.setState({
                 recipientsSheetTabs: [],
                 recipientsSheetTabSelected: ''
-            });
+            }, this.updateRecipients);
         }
     }
 
@@ -115,7 +117,7 @@ class AppController extends React.Component {
             this.setState({
                 replacementsSheetTabs: [],
                 replacementsSheetTabSelected: ''
-            });
+            }, this.updateReplacements);
         }
     }
 
@@ -160,6 +162,9 @@ class AppController extends React.Component {
     }
 
     updateRecipients() {
+        if (this.state.singleMailMode) {
+            return;
+        }
         if (this.state.recipientsSheetSelected && this.state.recipientsSheetTabSelected) {
             google.script.run.withSuccessHandler(function(data) {
                 this.setState({
@@ -225,14 +230,48 @@ class AppController extends React.Component {
         }, this.updateReplacements);
     }
 
-    /*onRecipientEmailInput(e) {
-     this.setState({
-     e.target.value);
-     }
+    // new features
 
-     onRecipientFullNameInput(e) {
-     this.setState(e.target.value);
-     }*/
+    onSingleMailModeChanged() {
+        if (!this.state.singleMailMode) {
+            this.setState({
+                singleMailMode: true,
+                recipients: []
+            });
+        } else {
+            this.setState({
+                singleMailMode: false
+            }, function() {
+                this.updateGoogleSheetList();
+            });
+        }
+    }
+
+    onRecipientEmailInput(e) {
+        var recipients = this.state.recipients;
+        if (recipients.length) {
+            recipients[0].email = e.target.value;
+        } else {
+            recipients = [{
+                email: e.target.value,
+                full_name: ''
+            }]
+        }
+        if (!recipients[0].email) {
+            recipients = [];
+        }
+        this.setState({
+            recipients: recipients
+        })
+    }
+
+    onRecipientFullNameInput(e) {
+        var recipients = this.state.recipients;
+        recipients[0].full_name = e.target.value;
+        this.setState({
+            recipients: recipients
+        })
+    }
 
     // react-specific
 
@@ -253,6 +292,7 @@ class AppController extends React.Component {
                 replacements={this.state.replacements}
                 recipients={this.state.recipients}
                 template={this.state.template}
+                singleMailMode={this.state.singleMailMode}
 
                 templateDocSelected={this.state.templateDocSelected}
                 templateBookmarkSelected={this.state.templateBookmarkSelected}
@@ -267,6 +307,10 @@ class AppController extends React.Component {
                 onBookmarksListChange={this.onBookmarksListChange}
                 onRecipientsSheetsListChange={this.onRecipientsSheetsListChange}
                 onReplacementsSheetsListChange={this.onReplacementsSheetsListChange}
+
+                onSingleMailModeChanged={this.onSingleMailModeChanged}
+                onRecipientEmailInput={this.onRecipientEmailInput}
+                onRecipientFullNameInput={this.onRecipientFullNameInput}
 
                 onSendRequest={this.sendMails}
                 onDocsRefresh={this.updateGoogleDocList}

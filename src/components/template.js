@@ -14,10 +14,27 @@ class Template extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         if (!this.getSelectedRecipient(nextProps.recipients)) {
-            this.setState({
-                previewEmail: ''
-            });
+            var i = this.getSelectedPosition();
+            if (i === null || i >= nextProps.recipients.length) {
+                this.setState({
+                    previewEmail: ''
+                });
+            } else {
+                this.setState({
+                    previewEmail: this.props.recipients[i].email
+                });
+            }
         }
+    }
+
+    getSelectedPosition() {
+        var keys = Object.keys(this.props.recipients);
+        for (var i = 0; i < keys.length; ++i) {
+            if (keys[i] === this.props.previewEmail) {
+                return i;
+            }
+        }
+        return null;
     }
 
     getSelectedRecipient(recipients) {
