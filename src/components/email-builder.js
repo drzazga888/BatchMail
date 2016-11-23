@@ -13,10 +13,7 @@ class EmailBuilder {
     }
 
     static htmlEscape(str) {
-        return $("<div>").text(str).html()
-            .replace(/^ /mg, "\n&nbsp;")
-            .replace(/^\t/mg, "\n&nbsp;&nbsp;&nbsp;&nbsp;")
-            .replace(/\n/g, '<br />');
+        return $("<div>").text(str).html();
     }
 
     toReactComponents() {
@@ -73,38 +70,6 @@ class EmailBuilder {
         return source;
     }
 
-    static mapTemplate(template) {
-        var nested = null;
-        var prevType = null;
-        var items = [];
-        template.forEach(function(item, i) {
-            if (item.type !== prevType) {
-                if (nested) {
-                    items.push(React.createElement(EmailBuilder.nestedMap[nested.type], {key: i}, nested.children));
-                    nested = null;
-                }
-                if (Object.keys(EmailBuilder.nestedMap).indexOf(item.type) !== -1) {
-                    nested = {
-                        type: item.type,
-                        children: []
-                    }
-                }
-            }
-            var reactDom = React.createElement(EmailBuilder.normalMap[item.type], {key: i, dangerouslySetInnerHTML: {__html: item.text}}, null);
-            if (Object.keys(EmailBuilder.nestedMap).indexOf(item.type) !== -1) {
-                nested.children.push(reactDom);
-            } else {
-                items.push(reactDom);
-            }
-            prevType = item.type;
-        });
-        if (nested) {
-            items.push(React.createElement(EmailBuilder.nestedMap[nested.type], {key: i}, nested.children));
-            nested = null;
-        }
-        return items;
-    }
-
     build(template, replacements, recipient) {
         // escaping replacements
         var escapedReplacements = replacements.map(function(replacement) {
@@ -128,33 +93,15 @@ class EmailBuilder {
             replacedSubject = EmailBuilder.htmlEscape(replacedSubject);
         }
         replacedSubject = this.replace(replacedSubject, escapedReplacements, recipient);
-        var replacedBody = template.body.map(function(elem) {
-            return {
-                type: elem.type,
-                text: this.replace(
-                    EmailBuilder.htmlEscape(elem.text),
-                    escapedReplacements,
-                    recipient
-                )
-            }
-        }, this);
+        var replacedBody = this.replace(EmailBuilder.htmlEscape(template.body), escapedReplacements, recipient);
         this.built = {
             subject: replacedSubject,
-            body: EmailBuilder.mapTemplate(replacedBody),
+            body: replacedBody,
             email: recipient ? recipient.email : null
         };
         return this;
     }
 
 }
-
-EmailBuilder.normalMap = {
-    LIST_ITEM: 'li',
-    PARAGRAPH: 'p'
-};
-
-EmailBuilder.nestedMap = {
-    LIST_ITEM: 'ul'
-};
 
 export default EmailBuilder;

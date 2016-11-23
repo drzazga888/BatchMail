@@ -131,6 +131,12 @@ em {
 
 .template-preview-body {
   border-top: dotted 2px #ccc;
+  padding: 20px;
+  white-space: pre-wrap;
+}
+
+.template-preview-body > * {
+  white-space: normal;
 }
 
 .little-hidden {
