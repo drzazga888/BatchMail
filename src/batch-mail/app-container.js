@@ -3,10 +3,25 @@ import Header from './header';
 import Template from './template';
 import Replacements from './replacements';
 import Recipients from './recipients';
+import CCs from './ccs';
 
 class AppContainer extends React.Component {
 
     render() {
+
+        let replacements = null;
+        if (!this.props.templateDirectInputMode) {
+            replacements = <Replacements
+                googleSheetList={this.props.googleSheetList}
+                replacementsSheetTabs={this.props.replacementsSheetTabs}
+                replacements={this.props.replacements}
+                onReplacementsListChange={this.props.onReplacementsListChange}
+                onReplacementsSheetsListChange={this.props.onReplacementsSheetsListChange}
+                replacementsSheetSelected={this.props.replacementsSheetSelected}
+                replacementsSheetTabSelected={this.props.replacementsSheetTabSelected}
+            />;
+        }
+
         return (
             <main>
                 <header className="header-line">
@@ -31,20 +46,17 @@ class AppContainer extends React.Component {
                                 templateBookmarkSelected={this.props.templateBookmarkSelected}
                                 replacements={this.props.replacements}
                                 recipients={this.props.recipients}
+                                ccs={this.props.ccs}
+                                templateDirectInputMode={this.props.templateDirectInputMode}
+                                onTemplateDirectInputModeChange={this.props.onTemplateDirectInputModeChange}
+                                onTemplateBodyChange={this.props.onTemplateBodyChange}
+                                onTemplateSubjectChange={this.props.onTemplateSubjectChange}
                             />
                         </section>
                     </div>
                     <div className="side-split">
                         <section>
-                            <Replacements
-                                googleSheetList={this.props.googleSheetList}
-                                replacementsSheetTabs={this.props.replacementsSheetTabs}
-                                replacements={this.props.replacements}
-                                onReplacementsListChange={this.props.onReplacementsListChange}
-                                onReplacementsSheetsListChange={this.props.onReplacementsSheetsListChange}
-                                replacementsSheetSelected={this.props.replacementsSheetSelected}
-                                replacementsSheetTabSelected={this.props.replacementsSheetTabSelected}
-                            />
+                            {replacements}
                         </section>
                         <section>
                             <Recipients
@@ -57,8 +69,23 @@ class AppContainer extends React.Component {
                                 recipientsSheetSelected={this.props.recipientsSheetSelected}
                                 recipientsSheetTabSelected={this.props.recipientsSheetTabSelected}
                                 onSingleMailModeChanged={this.props.onSingleMailModeChanged}
-                                onRecipientEmailInput={this.props.onRecipientEmailInput}
-                                onRecipientFullNameInput={this.props.onRecipientFullNameInput}
+                                onRecipientChange={this.props.onRecipientChange}
+                            />
+                        </section>
+                        <section>
+                            <CCs
+                                googleSheetList={this.props.googleSheetList}
+                                ccsSheetTabs={this.props.ccsSheetTabs}
+                                ccs={this.props.ccs}
+                                customCCsMode={this.props.customCCsMode}
+                                onCCsListChange={this.props.onCCsListChange}
+                                onCCsSheetsListChange={this.props.onCCsSheetsListChange}
+                                ccsSheetSelected={this.props.ccsSheetSelected}
+                                ccsSheetTabSelected={this.props.ccsSheetTabSelected}
+                                onCustomCCsModeChanged={this.props.onCustomCCsModeChanged}
+                                onCustomCCsRowChange={this.props.onCustomCCsRowChange}
+                                onCustomCCsRowInsert={this.props.onCustomCCsRowInsert}
+                                onCustomCCsRowDelete={this.props.onCustomCCsRowDelete}
                             />
                         </section>
                     </div>

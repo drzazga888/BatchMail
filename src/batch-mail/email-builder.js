@@ -1,6 +1,5 @@
 import $ from 'jquery';
 import React from 'react';
-import ReactDOM from 'react-dom';
 
 class EmailBuilder {
 
@@ -16,16 +15,21 @@ class EmailBuilder {
         return $("<div>").text(str).html();
     }
 
-    toReactComponents() {
+    static htmlUnescape(str) {
+        return $("<div>").html(str).text();
+    }
+
+    getHtml() {
         return this.built;
     }
 
-    toStrings() {
-        var built = this.built;
-        var dom = $('<div></div>');
-        ReactDOM.render(React.createElement('div', null, built.body), dom[0]);
-        built.body = dom.children().html();
-        return built;
+    getText() {
+        return {
+            subject: EmailBuilder.htmlUnescape(this.built.subject),
+            body: EmailBuilder.htmlUnescape(this.built.body),
+            email: this.built.email,
+            ccs: this.built.ccs
+        }
     }
 
     wrap(content, replacement) {
@@ -52,17 +56,20 @@ class EmailBuilder {
     }
 
     replace(source, replacements, recipient) {
+        if (!source) {
+            source = '';
+        }
         replacements.forEach(function(replacement) {
             switch (replacement.type) {
                 case 'normal':
                     source = source.split(replacement.search).join(this.wrap(replacement.replace_to, replacement));
                     break;
                 case 'full-name':
-                    var full_name = recipient ? recipient.full_name : 'Full Name';
+                    let full_name = recipient ? recipient.full_name : 'Full Name';
                     source = source.split(replacement.search).join(this.wrap(full_name, replacement));
                     break;
                 case 'email':
-                    var email = recipient ? recipient.email : 'Email';
+                    let email = recipient ? recipient.email : 'Email';
                     source = source.split(replacement.search).join(this.wrap(email, replacement));
                     break;
             }
@@ -70,9 +77,9 @@ class EmailBuilder {
         return source;
     }
 
-    build(template, replacements, recipient) {
+    build(template, replacements, recipient, ccs) {
         // escaping replacements
-        var escapedReplacements = replacements.map(function(replacement) {
+        let escapedReplacements = replacements.map(function(replacement) {
             return {
                 type: replacement.type,
                 search: EmailBuilder.htmlEscape(replacement.search),
@@ -80,10 +87,10 @@ class EmailBuilder {
             }
         });
         // escaping and replacing other things
-        var replacedSubject = template.subject;
+        let replacedSubject = template.subject;
         if (!replacedSubject) {
             // let's extract it from replacements
-            var subjectReplacements = escapedReplacements.filter(function(replacement) {
+            let subjectReplacements = escapedReplacements.filter(function(replacement) {
                 return replacement.type === 'subject-if-not-exists';
             });
             if (subjectReplacements.length > 0) {
@@ -93,11 +100,19 @@ class EmailBuilder {
             replacedSubject = EmailBuilder.htmlEscape(replacedSubject);
         }
         replacedSubject = this.replace(replacedSubject, escapedReplacements, recipient);
-        var replacedBody = this.replace(EmailBuilder.htmlEscape(template.body), escapedReplacements, recipient);
+        ccs = ccs.map(function(item) {
+            if (this.mode === 'preview') {
+                return `<span class="cc-item">${item.cc}</span>`;
+            } else {
+                return item.cc;
+            }
+        }.bind(this));
+        let replacedBody = this.replace(EmailBuilder.htmlEscape(template.body), escapedReplacements, recipient);
         this.built = {
             subject: replacedSubject,
             body: replacedBody,
-            email: recipient ? recipient.email : null
+            email: recipient ? recipient.email : null,
+            ccs: this.mode === 'preview' ? ccs : ccs.join(',')
         };
         return this;
     }

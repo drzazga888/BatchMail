@@ -4,7 +4,7 @@ class Header extends React.Component {
 
     render() {
 
-        var sendingActive = this.props.recipients.length > 0 && this.props.template.body && this.props.template.subject;
+        let sendingActive = this.props.recipients.length > 0 && this.props.template.body && this.props.template.subject;
 
         return (
             <div className="distant-inline">

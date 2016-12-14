@@ -1,47 +1,34 @@
 import React from 'react';
-import $ from 'jquery';
-import 'select2';
+import ReactSelect from 'react-select';
 
 class Select extends React.Component {
 
-    componentDidMount() {
-        $(this.refs.select).select2(this.props.engineOptions).on('change', function(a, b, c) {
-            if (this.props.onChange) {
-                this.props.onChange(a, b, c);
-            }
-        }.bind(this));
-    }
-
     render() {
 
-        var options = this.props.list.map(function(item) {
-            return <option key={item.id} value={item.id}>{item.name}</option>;
+        let options = this.props.list.map(function(item) {
+            return {
+                value: item.id.toString(),
+                label: item.name
+            };
         });
 
         return (
-            <p className="distant-inline">
+            <div className="distant-inline input-container">
                 <label htmlFor={this.props.id}>
                     {this.props.children}
                 </label>
-                <select
-                    id={this.props.id}
-                    ref='select'
-                    disabled={!this.props.list.length}
-                    onChange={this.props.onChange}
+                <ReactSelect
                     value={this.props.value}
-                    style={{width: '65%'}}
-                >
-                    <option value=""></option>
-                    {options}
-                </select>
-            </p>
+                    options={options}
+                    placeholder={this.props.placeholder}
+                    onChange={this.props.onChange}
+                    name={this.props.id}
+                    disabled={!options.length}
+                />
+            </div>
         );
     }
 
 }
-
-Select.defaultProps = {
-    engineOptions: {}
-};
 
 export default Select;
