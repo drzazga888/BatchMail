@@ -1,7 +1,6 @@
-
 .idea/
 node_modules/
 public/app.js
 public/style.css
 public/style.css.map
-/public/google-mock.js
+/.sass-cache/

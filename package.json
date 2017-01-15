@@ -4,9 +4,9 @@
   "description": "Front-end dla aplikacji do automatyzacji wysylania wiadomosci email",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify -t [ babelify --presets [ react es2015 ] ] src/index.js -o public/app.js",
-    "build-prod": "browserify -t [ babelify --presets [ react es2015 ] ] src/index.js | uglifyjs > public/app.js"
+    "build-js": "browserify -t [ babelify --presets [ react es2015 ] ] src/index.js -o public/app.js",
+    "build-css": "sass src/style.scss > public/style.css",
+    "build-all": "npm run-script build-js && npm run-script build-css"
   },
   "repository": {
     "type": "git",
